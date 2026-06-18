@@ -22,5 +22,45 @@ def generate_ecom_data(num_customers=100,num_transactions=300):
                       'signup_date':signup_date,
                       'city':random.choice(cities)})
     df_customers=pd.DataFrame(customers)
+# STAGE 3: FACT_CUSTOMER_FEEDBACK GENERATION (NLP BASE)
 
+    feedback = []
+    f_id = 1
+    
+    complaints = [
+        "The size was completely wrong and shipping took way too long. Disappointed.",
+        "Fabric quality is highly subpar. The stitching started coming apart after the first wash.",
+        "Horrible delivery experience. Package was completely damaged when it arrived.",
+        "Product looks entirely different from the online store image. Initiated a refund request."
+    ]
+    praises = [
+        "Absolutely amazing fit! The fabric quality feels highly premium. Will order again.",
+        "Super fast delivery and the product packaging was exceptionally clean.",
+        "Very comfortable material. Completely worth the price point.",
+        "Excellent customer support team and great product design."
+    ]
+    
+    for _, row in df_transactions.iterrows():
+        if random.random() > 0.4:  
+            t_id = row['transaction_id']
+            status = row['orderstatus']
+            p_date = row['purchase_date']
+            
+            if status in ['Cancelled', 'Returned']:
+                text = random.choice(complaints)
+            else:
+                text = random.choice(praises) if random.random() > 0.2 else random.choice(complaints)
+            
+            review_date = p_date + timedelta(days=random.randint(1, 7))
+            
+            feedback.append({
+                "feedback_id": f_id,
+                "transaction_id": t_id,
+                "review_text": text,
+                "review_date": review_date,
+                "ai_sentiment": None,         
+                "ai_sentiment_score": None,  
+                "ai_issue_category": None     
+            })
+            f_id += 1
 
