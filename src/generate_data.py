@@ -16,13 +16,14 @@ def generate_ecom_data(num_customers=100,num_transactions=300):
         # Clean processing: lowercase names and strip whitespaces for standard email sanitization# Clean processing: lowercase names and strip whitespaces for standard email sanitization
         email=f'{name.lower().replace(' ','')}@{fake.free_email_domain()}'
         signup_date=fake.date_between(start_date='-1y',end_date='today')
-    customers.append({'customer_id':i,
-                      'customer_name':name,
-                      'email':email,
-                      'signup_date':signup_date,
-                      'city':random.choice(cities)})
+        customers.append({'customer_id':i,
+                        'customer_name':name,
+                        'email':email,
+                        'signup_date':signup_date,
+                        'city':random.choice(cities)})
     df_customers=pd.DataFrame(customers)
 # STAGE 3: FACT_CUSTOMER_FEEDBACK GENERATION (NLP BASE)
+
 
     feedback = []
     f_id = 1
@@ -63,4 +64,28 @@ def generate_ecom_data(num_customers=100,num_transactions=300):
                 "ai_issue_category": None     
             })
             f_id += 1
+# =========================================================================
+# STAGE 2: FACT_TRANSACTIONS GENERATION
+# =========================================================================
 
+    transactions=[]
+    status=['Delivered', 'Delivered', 'Delivered', 'Cancelled', 'Returned']
+    for t_id in range(1,num_customers+1):
+        cust_id=random.choice(df_customers['customer_id'])
+        prod_id=random.randint(101,150)
+        purchase_date=fake.date_time_between(start_date='-6m',end_date='today')
+        quantity=random.randint(1,4)
+        unit_price=random.choice([499,399,299,599,699])
+        total_amount=quantity*unit_price
+        order_status=random.choice(status)
+        transactions.append({
+            'transaction_id': t_id,
+            'customer_id': cust_id,
+            'product_id': prod_id,
+            'purchase_date': purchase_date,
+            'quantity': quantity,
+            'total_amount': total_amount,
+            'orderstatus': order_status
+        })
+
+    df_transactions = pd.DataFrame(transactions)
