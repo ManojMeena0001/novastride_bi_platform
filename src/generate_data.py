@@ -185,9 +185,21 @@ if __name__ == "__main__":
         )
 
         print("\n📝 Sample Unstructured Review Text Preview:\n")
+        #-----------------------------------------------------------------------------
+        #     Bulk Data Ingestion 
+        #-----------------------------------------------------------------------------
+        print('Commencing Bulk Database Ingestion layer .....')
+        try:
+            # Load Customers first (Primary Key dimension base)
+            # if_exists='append' ensures we add new rows without dropping the table structure
+            # index=False prevents Pandas from creating an accidental extra index column in SQL
+            df_cust.to_sql(name='dim_customers',con=engine,if_exists='append',index=False)
+            print("💾 Successfully ingested records into table: dim_customers")
 
-        print(
-            df_feed[
-                ['transaction_id', 'review_text']
-            ].head()
-        )
+            # Load Transactions second (Dependent Foreign Key fact set)
+            df_trans.to_sql(name='fact_transactions', con=engine, if_exists='append', index=False)
+            print("💾 Successfully ingested records into table: fact_transactions")
+            
+            print("\n🎉 Success: Database synchronization completely flawless!")
+        except Exception as e:
+            print(f"\n❌ Ingestion Layer Failed. Database rolled back. Error details: {e}")
