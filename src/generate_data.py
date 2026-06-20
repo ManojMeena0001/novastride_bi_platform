@@ -46,6 +46,30 @@ def generate_ecom_data(num_customers=100, num_transactions=300):
         })
 
     df_customers = pd.DataFrame(customers)
+    #===================================================================
+    #    Product Details Generation 
+    #===================================================================
+    products = []
+
+    categories = [
+        'Electronics',
+        'Fashion',
+        'Home',
+        'Beauty',
+        'Sports'
+    ]
+
+    for p_id in range(101, 151):
+
+        products.append({
+            'product_id': p_id,
+            'product_name': f'Product_{p_id}',
+            'category': random.choice(categories),
+            'price': random.choice([299,399,499,599,699]),
+            'stock_quantity': random.randint(10,200)
+        })
+
+    df_products = pd.DataFrame(products)
 
     # =========================================================================
     # STAGE 2: TRANSACTION GENERATION
@@ -160,6 +184,7 @@ def generate_ecom_data(num_customers=100, num_transactions=300):
 
     return (
         df_customers,
+        df_products,
         df_transactions,
         df_feedback
     )
@@ -175,7 +200,7 @@ if __name__ == "__main__":
 
     if engine:
 
-        df_cust, df_trans, df_feed = generate_ecom_data()
+        df_cust,df_prod, df_trans, df_feed = generate_ecom_data()
 
         print(
             f"✅ Data Matrices Synthesized: "
@@ -184,7 +209,7 @@ if __name__ == "__main__":
             f"{len(df_feed)} Reviews."
         )
 
-        print("\n📝 Sample Unstructured Review Text Preview:\n")
+        print("\n Sample Unstructured Review Text Preview:\n")
         #-----------------------------------------------------------------------------
         #     Bulk Data Ingestion 
         #-----------------------------------------------------------------------------
@@ -194,12 +219,20 @@ if __name__ == "__main__":
             # if_exists='append' ensures we add new rows without dropping the table structure
             # index=False prevents Pandas from creating an accidental extra index column in SQL
             df_cust.to_sql(name='dim_customers',con=engine,if_exists='append',index=False)
-            print("💾 Successfully ingested records into table: dim_customers")
+            print(" Successfully ingested records into table: dim_customers")
+
+            df_prod.to_sql(name='dim_products',con=engine,if_exists='append',index=False)
+
+            print(" Successfully ingested records into table: dim_products")
+
 
             # Load Transactions second (Dependent Foreign Key fact set)
             df_trans.to_sql(name='fact_transactions', con=engine, if_exists='append', index=False)
-            print("💾 Successfully ingested records into table: fact_transactions")
+            print(" Successfully ingested records into table: fact_transactions")
             
             print("\n🎉 Success: Database synchronization completely flawless!")
+            df_feed.to_sql(name='fact_customer_feedback',con=engine,if_exists='append',index=False)
+
+            print("💾 Successfully ingested records into table: fact_customer_feedback")
         except Exception as e:
-            print(f"\n❌ Ingestion Layer Failed. Database rolled back. Error details: {e}")
+            print(f"\nIngestion Layer Failed. Database rolled back. Error details: {e}")
