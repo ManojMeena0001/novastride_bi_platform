@@ -4,3 +4,4 @@ SQLAlchemy==2.0.50
 typing_extensions==4.15.0
 Faker==40.23.0
 pandas
+nltk version 3.9.4
