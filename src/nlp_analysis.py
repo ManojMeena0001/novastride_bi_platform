@@ -46,9 +46,8 @@ def analyze_and_classify_text(df:pd.DataFrame)->pd.DataFrame:
             polarity_scores=sia.polarity_scores(text)
             compound_score=polarity_scores['compound']
             scores.append(compound_score)
-            print(len(sentiments))
-            print(len(scores))
-            print(len(categories))
+            
+            
             # Categorize text based on standard retail analytics thresholds
             if compound_score>=0.05:
                 sentiments.append('positive')
